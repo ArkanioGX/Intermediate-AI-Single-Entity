@@ -47,9 +47,9 @@ void Dikjstra(int g[nodeNumber][nodeNumber], int origin) {
 
         for (int i = 0; i < nodeList.size(); i++) {
             int id = nodeList[i];
-            if (g[id][min] != inf) {
-                int distAlt = dist[id] + g[id][min];
-                if (distAlt < dist[min]) {
+            if (g[min][id] != inf) {
+                int distAlt = dist[min] + g[min][id];
+                if (distAlt < dist[id]) {
                     dist[id] = distAlt;
                     prev[id] = id;
                 }
@@ -65,7 +65,7 @@ void Dikjstra(int g[nodeNumber][nodeNumber], int origin) {
 }
 
 int searchMin(int dist[], std::vector<int>& list) {
-    int minID = 0;
+    int minID = list[0];
 
     for (int j = 0; j < list.size(); j++) {
         int id = list[j];
