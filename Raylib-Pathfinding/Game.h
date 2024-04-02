@@ -1,13 +1,21 @@
 #pragma once
 #include "Actor.h"
+#include "RenderComponent.h"
 
 class Game
 {
 	std::vector<Actor*> actorsList;
+	std::vector<RenderComponent*> renderComponentList;
 public:
+
+	static Game& instance() {
+		static Game inst;
+		return inst;
+	}
+
 	Game();
 
-	void initialize();
+	void load();
 	void loop();
 	void draw();
 	void close();
@@ -15,6 +23,9 @@ public:
 	void addActor(Actor*);
 	void removeActor(Actor*);
 
-	//static Game* game;
+	void addRenderComponent(RenderComponent*);
+	void removeRenderComponent(RenderComponent*);
+
+	
 };
 

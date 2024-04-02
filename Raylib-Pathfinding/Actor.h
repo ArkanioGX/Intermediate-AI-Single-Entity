@@ -1,17 +1,22 @@
 #pragma once
 #include <vector>
+#include "Component.h"
+#include "raylib.h"
 
 class Actor
 {
 private:
-	std::vector<class Component*> Components;
+	std::vector<Component*> Components;
+
+	Vector2 pos = Vector2{ 0,0 };
+	Vector2 scale = Vector2{ 100,100 };
 
 public:
 	Actor();
 
 	void update(float dt);
-	bool addComponent(class Component*);
-	bool removeComponent(class Component*);
+	bool addComponent(Component*);
+	bool removeComponent(Component*);
 
 	template <typename CompType>
 	inline Component* getComponent() {
@@ -24,4 +29,7 @@ public:
 	}
 
 	class Game* getGame();
+
+	Vector2 getPosition();
+	Vector2 getScale();
 };

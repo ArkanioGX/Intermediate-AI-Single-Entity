@@ -1,11 +1,13 @@
 #pragma once
-#include "Actor.h"
+
+class Actor;
 
 class Component
 {
 public:
-	Actor* getOwner();
+	Component(Actor* a);
 
+	Actor* getOwner();
 	virtual void update(float dt);
 
 private:

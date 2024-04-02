@@ -7,17 +7,13 @@ int main() {
     InitWindow(screenWidth, screenHeight, "Raylib basic window");
     SetTargetFPS(60);
 
-    Game* game = new Game();
-    game->initialize();
+    Game::instance().load();
 
     while (!WindowShouldClose()) {
-        game->loop();
-        BeginDrawing();
-        ClearBackground(RAYWHITE);
-        game->draw();
-        EndDrawing();
+        Game::instance().loop();
+        Game::instance().draw();
     }
-    game->close();
+    Game::instance().close();
     CloseWindow();
     return 0;
 }

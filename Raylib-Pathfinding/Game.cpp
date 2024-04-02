@@ -1,15 +1,16 @@
 #include "Game.h"
+#include "raylib.h"
 
 
 
 Game::Game()
 {
-	//game = this;
 }
 
-void Game::initialize()
+void Game::load()
 {
-	
+	Actor* act = new Actor();
+	RenderComponent* rc = new RenderComponent(act);
 }
 
 void Game::loop()
@@ -22,6 +23,12 @@ void Game::loop()
 
 void Game::draw()
 {
+	BeginDrawing();
+	ClearBackground(Color{ 255,255,255,255 });
+	for (int i = 0; i < renderComponentList.size(); i++) {
+		renderComponentList[i]->draw();
+	}
+	EndDrawing();
 }
 
 void Game::close()
@@ -35,4 +42,25 @@ void Game::addActor(Actor* a)
 
 void Game::removeActor(Actor* a)
 {
+	for (int i = 0; i < actorsList.size(); i++) {
+		if (actorsList[i] == a) {
+			actorsList.erase(actorsList.begin() + i);
+			return;
+		}
+	}
+}
+
+void Game::addRenderComponent(RenderComponent* rc)
+{
+	renderComponentList.push_back(rc);
+}
+
+void Game::removeRenderComponent(RenderComponent* rc)
+{
+	for (int i = 0; i < renderComponentList.size(); i++) {
+		if (renderComponentList[i] == rc) {
+			renderComponentList.erase(renderComponentList.begin() + i);
+			return;
+		}
+	}
 }
