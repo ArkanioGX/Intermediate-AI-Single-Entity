@@ -141,14 +141,22 @@
     <ClCompile Include="Component.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="PathfindingComponent.cpp" />
     <ClCompile Include="RenderComponent.cpp" />
+    <ClCompile Include="Tile.cpp" />
+    <ClCompile Include="TilemapComponent.cpp" />
+    <ClCompile Include="TilemapRenderer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Actor.h" />
     <ClInclude Include="Component.h" />
     <ClInclude Include="Game.h" />
+    <ClInclude Include="PathfindingComponent.h" />
     <ClInclude Include="RenderComponent.h" />
     <ClInclude Include="Special.h" />
+    <ClInclude Include="Tile.h" />
+    <ClInclude Include="TilemapComponent.h" />
+    <ClInclude Include="TilemapRenderer.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -19,13 +19,17 @@ public:
 	bool removeComponent(Component*);
 
 	template <typename CompType>
-	inline Component* getComponent() {
-		Component* res = nullptr;
-		for (int i = 0; i < Components.size(); i++) {
-			res = dynamic_cast<CompType*>(Components[i]);
-			if (res) { break; }
+	inline CompType getComponent()
+	{
+		for (Component* currComp : Components)
+		{
+			CompType currentEntry = dynamic_cast<CompType>(currComp);
+			if (currentEntry != nullptr)
+			{
+				return currentEntry;
+			}
 		}
-		return res;
+		return nullptr;
 	}
 
 	class Game* getGame();
@@ -33,3 +37,4 @@ public:
 	Vector2 getPosition();
 	Vector2 getScale();
 };
+

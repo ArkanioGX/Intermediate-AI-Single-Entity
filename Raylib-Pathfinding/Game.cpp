@@ -1,5 +1,8 @@
 #include "Game.h"
 #include "raylib.h"
+#include "TilemapRenderer.h"
+#include "TilemapComponent.h"
+#include "PathfindingComponent.h"
 
 
 
@@ -10,7 +13,9 @@ Game::Game()
 void Game::load()
 {
 	Actor* act = new Actor();
-	RenderComponent* rc = new RenderComponent(act);
+	TilemapComponent* tmc = new TilemapComponent(act);
+	TilemapRenderer* rc = new TilemapRenderer(act);
+	PathfindingComponent* pfc = new PathfindingComponent(act);
 }
 
 void Game::loop()
