@@ -4,7 +4,7 @@
 int main() {
     const int screenWidth = 800;
     const int screenHeight = 800;
-    InitWindow(screenWidth, screenHeight, "Raylib basic window");
+    InitWindow(screenWidth, screenHeight, "A-Star Visualized");
     SetTargetFPS(60);
 
     Game::instance().load();

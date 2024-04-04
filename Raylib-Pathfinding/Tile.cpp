@@ -12,5 +12,5 @@ Tile::Tile(float f, Color c):
 const Tile Tile::Ground(1, DARKGREEN);
 const Tile Tile::Wall(inf, GRAY);
 const Tile Tile::Water(10, BLUE);
-const Tile Tile::Bridge(3, DARKBROWN);
+const Tile Tile::Bridge(2, DARKBROWN);
 

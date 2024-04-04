@@ -17,22 +17,38 @@ PathfindingComponent::PathfindingComponent(Actor* ownerP):
 
 void PathfindingComponent::update(float dt)
 {
+	if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+		Vector2 mpos = GetMousePosition();
+
+		TilemapComponent* tmc = getOwner()->getComponent<TilemapComponent*>();
+		int x = mpos.y / GetRenderWidth() * tmc->getMapSize();
+		int y = mpos.x / GetRenderHeight() * tmc->getMapSize();
+		Vector2 tPos = { float(x),float(y) };
+		if (checkTileIfFree(tPos)) {
+			start = Vector2{ float(x),float(y) };
+			findPath();
+		}
+	}
+	else if (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT)) {
+		Vector2 mpos = GetMousePosition();
+
+		TilemapComponent* tmc = getOwner()->getComponent<TilemapComponent*>();
+		int x = mpos.y / GetRenderWidth() * tmc->getMapSize();
+		int y = mpos.x / GetRenderHeight() * tmc->getMapSize();
+		Vector2 tPos = { float(x),float(y) };
+		if (checkTileIfFree(tPos)) {
+			end = Vector2{ float(x),float(y) };
+			findPath();
+		}
+	}
+	
 }
 
 void PathfindingComponent::draw()
 {
 	Vector2 actPos = getOwner()->getPosition();
 	Vector2 actScale = getOwner()->getScale();
-	//Start Pos Draw
-	float startPosX = actPos.x + start.x * actScale.x + (actScale.x/2);
-	float startPosY = actPos.y + start.y * actScale.y + (actScale.y / 2);
-	DrawCircle(startPosX, startPosY, 25, GOLD);
-
-	//End Pos Draw
-	float endPosX = actPos.x + end.x * actScale.x + (actScale.x / 2);
-	float endPosY = actPos.y + end.y * actScale.y + (actScale.y / 2);
-	DrawCircle(endPosX, endPosY, 25, RED);
-
+	
 	//Path render
 	if (!finalPath.empty()) {
 		for (int i = 0; i < finalPath.size() - 1; i++) {
@@ -49,7 +65,7 @@ void PathfindingComponent::draw()
 			DrawLineEx(startLine, endLine, 10, GOLD);
 		}
 
-		for (int i = 1; i < finalPath.size() - 1; i++) {
+		for (int i = 1; i < finalPath.size(); i++) {
 			Vector2 betweenLine = finalPath[i];
 			float lPosX = actPos.x + betweenLine.x * actScale.x + (actScale.x / 2);
 			float lPosY = actPos.y + betweenLine.y * actScale.y + (actScale.y / 2);
@@ -59,6 +75,16 @@ void PathfindingComponent::draw()
 		}
 
 	}
+
+	//Start Pos Draw
+	float startPosX = actPos.x + start.x * actScale.x + (actScale.x / 2);
+	float startPosY = actPos.y + start.y * actScale.y + (actScale.y / 2);
+	DrawCircle(startPosY, startPosX, 25, GOLD);
+
+	//End Pos Draw
+	float endPosX = actPos.x + end.x * actScale.x + (actScale.x / 2);
+	float endPosY = actPos.y + end.y * actScale.y + (actScale.y / 2);
+	DrawCircle(endPosY, endPosX, 25, RED);
 }
 
 void PathfindingComponent::findPath()
@@ -85,12 +111,13 @@ void PathfindingComponent::findPath()
 			std::cout << "GGs you won" << std::endl;
 			Node* n = endNode;
 			while (n != startNode) {
-				finalPath.push_back(Vector2{float(n->x),float(n->y)});
+				finalPath.push_back(Vector2{float(n->y),float(n->x)});
 				n = n->Parent;
 			}
+			finalPath.push_back(Vector2{ float(n->y),float(n->x) });
 			return;
 		}
-		std::vector<Node*> childNodes = setChildren(currentNode);
+		std::vector<Node*> childNodes = setChildren(currentNode,closedList);
 		for (int i = 0; i < childNodes.size(); i++) {
 			Node* childNode = childNodes[i];
 			if (ifIsInList(childNode, closedList)) {
@@ -112,7 +139,7 @@ void PathfindingComponent::findPath()
 }
 
 float PathfindingComponent::getDist(Node* n1, Node* n2) {
-	return sqrt(pow((n1->x - n2->x), 2) + pow((n1->x - n2->x), 2));
+	return sqrt(pow((n1->x - n2->x), 2) + pow((n1->y - n2->y), 2));
 }
 
 int PathfindingComponent::getIndexFromValue(std::vector<Node*>& list, Node* v) {
@@ -136,7 +163,7 @@ Node* PathfindingComponent::searchMin(std::vector<Node*>& list) {
 	return list[fMin];
 }
 
-std::vector<Node*> PathfindingComponent::setChildren(Node* n) {
+std::vector<Node*> PathfindingComponent::setChildren(Node* n, std::vector<Node*>& cList) {
 	std::vector<Node*> children = std::vector<Node*>();
 	for (int x = -1; x < 2; x++) {
 		if ((n->x + x >= 0) && (n->x + x < nodeMap[0].size())) {
@@ -144,9 +171,12 @@ std::vector<Node*> PathfindingComponent::setChildren(Node* n) {
 				if ((n->y + y >= 0) && (n->y + y < nodeMap[0].size())) {
 					int xP = n->x + x;
 					int yP = n->y + y;
-					if (!(x == 0 && y == 0) && nodeMap[xP][yP]->toughness != inf && (ifIsInListViaPos(nodeMap[xP][yP], closedList) == -1)) {
-						nodeMap[xP][yP]->Parent = n;
-						children.push_back(nodeMap[xP][yP]);
+					if (!(x == 0 && y == 0) && nodeMap[xP][yP]->toughness != inf ) 
+					{
+						if (!ifIsInList(nodeMap[xP][yP], cList)) {
+							nodeMap[xP][yP]->Parent = n;
+							children.push_back(nodeMap[xP][yP]);
+						}
 					}
 				}
 			}
@@ -157,7 +187,7 @@ std::vector<Node*> PathfindingComponent::setChildren(Node* n) {
 
 bool PathfindingComponent::ifIsInList(Node* value, std::vector<Node*> list) {
 	for (int i = 0; i < list.size(); i++) {
-		if (list[i] == value) {
+		if (hasSamePos(list[i], value)) {
 			return true;
 		}
 	}
@@ -176,6 +206,17 @@ int PathfindingComponent::ifIsInListViaPos(Node* value, std::vector<Node*> list)
 bool PathfindingComponent::hasSamePos(Node* n1, Node* n2)
 {
 	return n1->x == n2->x && n1->y == n2->y;
+}
+
+bool PathfindingComponent::hasSamePos(Vector2 p1,Vector2 p2)
+{
+	return p1.x == p2.x && p1.y == p2.y;
+}
+
+bool PathfindingComponent::checkTileIfFree(Vector2 pos)
+{
+	TilemapComponent* tmc = getOwner()->getComponent<TilemapComponent*>();
+	return ((!hasSamePos(pos, start) && !hasSamePos(pos, end)) && tmc->getTileAt(pos.x, pos.y)->pathToughness != inf);
 }
 
 void PathfindingComponent::initNodeMap() {
