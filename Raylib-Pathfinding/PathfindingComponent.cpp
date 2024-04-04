@@ -1,6 +1,8 @@
 #include "PathfindingComponent.h"
 #include "Actor.h"
 #include "TilemapComponent.h"
+#include <iostream>
+#define inf std::numeric_limits<float>::max()
 //#include "raylib.h"
 
 
@@ -61,11 +63,119 @@ void PathfindingComponent::draw()
 
 void PathfindingComponent::findPath()
 {
+	finalPath.clear();
+
 	std::vector<Node*> openList = std::vector<Node*>();
 	std::vector<Node*> closedList = std::vector<Node*>();
 
 	initNodeMap();
+	Node* startNode = nodeMap[start.x][start.y];
+	startNode->f = 0;
+	Node* endNode = nodeMap[end.x][end.y];
 
+	openList.push_back(startNode);
+
+	while (!openList.empty()) {
+		Node* currentNode;
+		currentNode = searchMin(openList);
+		openList.erase(openList.begin() + getIndexFromValue(openList, currentNode));
+		closedList.push_back(currentNode);
+
+		if (currentNode == endNode) {
+			std::cout << "GGs you won" << std::endl;
+			Node* n = endNode;
+			while (n != startNode) {
+				finalPath.push_back(Vector2{float(n->x),float(n->y)});
+				n = n->Parent;
+			}
+			return;
+		}
+		std::vector<Node*> childNodes = setChildren(currentNode);
+		for (int i = 0; i < childNodes.size(); i++) {
+			Node* childNode = childNodes[i];
+			if (ifIsInList(childNode, closedList)) {
+				continue;
+			}
+			childNode->g = currentNode->g + getDist(currentNode, childNode) * childNode->toughness;
+			childNode->h = getDist(childNode, endNode);
+			childNode->f = childNode->g + childNode->h;
+
+			int listPos = ifIsInListViaPos(childNode, openList);
+			if (listPos != -1) {
+				if (openList[listPos]->g < childNode->g) {
+					continue;
+				}
+			}
+			openList.push_back(childNode);
+		}
+	}
+}
+
+float PathfindingComponent::getDist(Node* n1, Node* n2) {
+	return sqrt(pow((n1->x - n2->x), 2) + pow((n1->x - n2->x), 2));
+}
+
+int PathfindingComponent::getIndexFromValue(std::vector<Node*>& list, Node* v) {
+	for (int i = 0; i < list.size(); i++) {
+		if (list[i] == v) {
+			return  i;
+		}
+	}
+	return 0;
+}
+
+Node* PathfindingComponent::searchMin(std::vector<Node*>& list) {
+	int fMin = 0;
+
+	for (int j = 0; j < list.size(); j++) {
+		if (list[j]->f < list[fMin]->f)
+		{
+			fMin = j;
+		}
+	}
+	return list[fMin];
+}
+
+std::vector<Node*> PathfindingComponent::setChildren(Node* n) {
+	std::vector<Node*> children = std::vector<Node*>();
+	for (int x = -1; x < 2; x++) {
+		if ((n->x + x >= 0) && (n->x + x < nodeMap[0].size())) {
+			for (int y = -1; y < 2; y++) {
+				if ((n->y + y >= 0) && (n->y + y < nodeMap[0].size())) {
+					int xP = n->x + x;
+					int yP = n->y + y;
+					if (!(x == 0 && y == 0) && nodeMap[xP][yP]->toughness != inf && (ifIsInListViaPos(nodeMap[xP][yP], closedList) == -1)) {
+						nodeMap[xP][yP]->Parent = n;
+						children.push_back(nodeMap[xP][yP]);
+					}
+				}
+			}
+		}
+	}
+	return children;
+}
+
+bool PathfindingComponent::ifIsInList(Node* value, std::vector<Node*> list) {
+	for (int i = 0; i < list.size(); i++) {
+		if (list[i] == value) {
+			return true;
+		}
+	}
+	return false;
+}
+
+int PathfindingComponent::ifIsInListViaPos(Node* value, std::vector<Node*> list) {
+	for (int i = 0; i < list.size(); i++) {
+		if (hasSamePos(list[i], value)) {
+			return i;
+		}
+	}
+	return -1;
+}
+
+bool PathfindingComponent::hasSamePos(Node* n1, Node* n2)
+{
+	return n1->x == n2->x && n1->y == n2->y;
 }
 
 void PathfindingComponent::initNodeMap() {

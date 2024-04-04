@@ -14,7 +14,8 @@ public:
 
 class PathfindingComponent : public RenderComponent
 {
-	
+	std::vector<Node*> openList;
+	std::vector<Node*> closedList;
 
 	Vector2 start = {0,0};
 	Vector2 end = { 7,7 };
@@ -33,6 +34,20 @@ public:
 	void findPath();
 
 	void initNodeMap();
+
+	float getDist(Node* n1, Node* n2);
+
+	int getIndexFromValue(std::vector<Node*>& list, Node* v);
+
+	Node* searchMin(std::vector<Node*>& list);
+
+	std::vector<Node*> setChildren(Node* n);
+
+	bool ifIsInList(Node* value, std::vector<Node*> list);
+
+	int ifIsInListViaPos(Node* value, std::vector<Node*> list);
+
+	bool hasSamePos(Node* n1, Node* n2);
 };
 
 
